@@ -1,0 +1,40 @@
+Global Objects : 
+>Spawnbook point
+>Timer
+>
+
+StartEvent :
+>Particles
+>Timer Startup
+>Camera pan
+>SFX
+
+Change : 
+>Change Altars
+>Question GUI Determining (Altar / OnBunny)
+>Detection on trigger with Answer
+
+>Correct
+>>SFX
+>>Next Stage
+
+>Wrong
+>>SFX
+>>Deduct time
+
+End : Normal
+>Stop Timer
+>Lock Movement
+>Animation
+>SFX
+>Particles
+
+End : Fail
+>
+
+Book Function
+>Spawn with ** tag
+>Swap to Active when picked up
+--
+>Check Bool
+==

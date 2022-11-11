@@ -1,0 +1,22 @@
+Initial position
+>>Store<<
+[Startup]Animation and language canvas
+>> Trigger + Canvas >> Voiceover + Animation
+Robot starts inside
+
+[AI]Items added and removed from cart
+>> Canvas (Live counters)
+
+[Trigger]Daily Speech
+>> Voiceover bluff
+
+[AI + Trigger]Item suggestion (Certain areas of the store have specific catered suggestions)
+>> --AI + Voiceover + Animation
+
+[Trigger]Check-out Canvas
+>> Voiceover + Price Calculation
+
+
+Current AI is an image classification with weights
+Need an object detection with positions 
+--
