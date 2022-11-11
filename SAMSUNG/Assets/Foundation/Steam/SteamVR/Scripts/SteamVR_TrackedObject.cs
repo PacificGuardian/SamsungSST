@@ -32,6 +32,7 @@ namespace Valve.VR
             Device15,
             Device16
         }
+        public bool Track = true;
 
         public EIndex index;
 
@@ -63,11 +64,13 @@ namespace Valve.VR
 
             if (origin != null)
             {
+                if(Track)
                 transform.position = origin.transform.TransformPoint(pose.pos);
                 transform.rotation = origin.rotation * pose.rot;
             }
             else
             {
+                if(Track)
                 transform.localPosition = pose.pos;
                 transform.localRotation = pose.rot;
             }

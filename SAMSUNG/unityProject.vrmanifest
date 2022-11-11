@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.mrbeta.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\Users\\VTC\\Desktop\\MirageMRFoundation\\MirageMRBeta\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "C:\\Users\\VTC\\Desktop\\Unity Projects\\SamsungSST\\SAMSUNG\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "MRBeta [Testing]"
