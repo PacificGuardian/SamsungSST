@@ -12,9 +12,8 @@ public class MarketTrigs : MonoBehaviour
     }
     private void Start() {
         varManager = VarManager.Singleton;
-        MarketStart.Invoke();
+        //MarketStart.Invoke();
         //Speech + description
-        VarManager.Singleton.StartCanvas.enabled = true;
         //add languageseleced to butt
     }
 

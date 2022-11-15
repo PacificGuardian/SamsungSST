@@ -2,16 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestCanvas : MonoBehaviour
+public class TestCanvas : VarManager
 {
     [SerializeField] string itemType;
     public void AddItemPressed(){
-        VarManager.AddItem(itemType);
+        AddItem(itemType);
     }
     public void SubItemPresed(){
-        VarManager.RemoveItem(itemType);
+        RemoveItem(itemType);
     }
     public void CheckoutPresed(){
-        VarManager.Checkout();
+        Checkout();
     }
 }
