@@ -10,6 +10,7 @@ public class Idle : BscM{
     GameObject slave;
     Vector3 distance;
     Vector3 tempRot;
+    Vector3 pos;
     public static bool slaveReady = false;
     public bool intIdling = false;
     private void Start() {
@@ -34,6 +35,7 @@ public class Idle : BscM{
             if(distance.sqrMagnitude > 0.01f)
             {
             slave.GetComponent<Animator>().SetBool("Walking", true);
+            pos = new Vector3(target.transform.position.x,slave.transform.position.y,target.transform.position.z);
             slave.transform.position = Vector3.MoveTowards(slave.transform.position, target.transform.position, 0.05f);
             tempRot.y = Quaternion.LookRotation(distance.normalized).eulerAngles.y;
             slave.transform.eulerAngles = tempRot;
