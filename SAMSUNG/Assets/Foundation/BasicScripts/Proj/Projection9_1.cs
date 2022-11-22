@@ -9,11 +9,16 @@ public class Projection9_1 : MonoBehaviour
     public GameObject OppTruePos;
     public GameObject TargetBody;
     public GameObject TargetBodyOri;
+    public GameObject Field_rotation_1;
+    public GameObject Field_rotation_2;
+    public GameObject TheField;
+
     public bool stopBodyHTrack = false;
     public bool stopPosFeed = false;
     public bool stopOriFeed = false;
     public bool usePosDly = true;
     public bool useOriDly = true;
+
     public float VORORatio = 3.05F;
     public float CamTrackerDist = 16F;
     public bool LockBodyHeight = true;
@@ -31,32 +36,36 @@ public class Projection9_1 : MonoBehaviour
 
     private List<Vector3> posLst = new List<Vector3>();
     private List<Quaternion> oriLst = new List<Quaternion>();
-    [Range(1,200)]//0.02 -- 0.01 fixedDeltaTime
+
+// shock
+    private float fixedDeltaTime;
+    [Range(15,30)]//0.02 -- 0.01 fixedDeltaTime
     public int delayFrame = 15;
     [Range(0.2f, 0.3f)]
     public float camdelay = 0.27695f;
 
+//only for see and calculate
+    [HeaderAttribute("only for See and Calculate")]
     public float angle;
-    public float calculate_angle_areaf;
-    public List<int> Calculate_Classification;
     public float rob_angle_True;
     public float rob_angle;
-    public List<int> X1_X2 = new List<int>();
-    public List<int> Y1_Y2 = new List<int>();
-    public float angle_fix = 3f;
-   /* public float seen_angle = 0f;
+    public float distance;
+    public float angle_changed;
+    public float high_changed;
+    public float high_change_2;
+    public float angle_changed_2;
+
 //
-    public float check_X;
-    public float check_Y;
+    [HeaderAttribute("Can be changed")]
+    public float high_change = 4.75f;
+    public float angle_error = 0;
 //
-*/
-    public bool use_fix = true;
-    private float fixedDeltaTime;
+    [HeaderAttribute("Select the function")]
+    public bool use_fix_1 = true;
+    public bool use_fix_1_1 = true;
 
     void Start()
     {
-        X1_X2.Add(1);X1_X2.Add(-3);
-        Y1_Y2.Add(1);Y1_Y2.Add(-1);
         fixedDeltaTime = camdelay / delayFrame;
         if (!stopBodyHTrack)
             TargetBody.transform.localPosition = new Vector3(0, 0, CamTrackerDist / VORORatio);
@@ -93,8 +102,6 @@ public class Projection9_1 : MonoBehaviour
         }
         else
             delayFrame--;
-        if(use_fix)
-           Fix_10();
         if (!stopPosFeed)
         {
             if (usePosDly && posLst.Count > 0)
@@ -110,133 +117,115 @@ public class Projection9_1 : MonoBehaviour
             else
                 TargetBody.transform.rotation = TargetBodyOri.transform.rotation;
         }
+
+        //calculate the float for seeing
         angle = (Mathf.Atan2(Proj.x, Proj.z) * Mathf.Rad2Deg);
-        calculate_angle_areaf = Calculate_angle_area(angle);
-        Calculate_Classification = Calculate_ClassificationXY(calculate_angle_areaf);
-        rob_angle_True = CamRot.transform.localRotation.eulerAngles.z + angle_fix;
+        rob_angle_True = CamRot.transform.localRotation.eulerAngles.z;
         rob_angle = (rob_angle_True - angle+360)%360;
+        distance =Mathf.Sqrt( Mathf.Pow(Proj.x,2)+Mathf.Pow(Proj.y,2)+Mathf.Pow(Proj.z,2));
+
+        //using fix
+        if(use_fix_1 && !use_fix_1_1)
+           Fix_1();
+        if(use_fix_1_1 && !use_fix_1)
+           Fix_1_1();
+        if(use_fix_1_1 && use_fix_1)
+            Fix_1();   
     }
-/*        private void Fix_9()
+    private void Fix_1()//default
     {
-        //List<float> XY = ListXY();
-        //print(XY[0] +""+ XY[1]+""+XY[2] +""+ XY[3]);
-        float RotationX_fix = check_X;
-        float RotationY_fix = check_Y;
-        float angle = (Mathf.Atan2(Proj.x, Proj.z) * Mathf.Rad2Deg);
-        //float rob_angle_True = CamRot.transform.localRotation.eulerAngles.z + angle_fix;
-        //float rob_angle = (rob_angle_True - angle+360)%360;
-        //RotationX_fix_public = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Mathf.Sin((Mathf.PI /180)*(angle+180));//180+90//changed+90
-        /////RotationX_fix_public = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Angle_change(angle,0);//180,90
-        /////RotationY_fix_public = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Angle_change(angle,90);//270,180
-        //RotationY_fix_public = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Mathf.Sin((Mathf.PI /180)*angle+90);//2 - Mathf.Abs(RotationX_fix_public);
-        RotationX = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Angle_change(angle,0);
-        //RotationY = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Angle_change(angle,90);
-        /*if(rob_angle < 90 -seen_angle || rob_angle > 270 + seen_angle)
+        //distance error(the back of the 360 camera)
+        high_change_2 = ((1.58f)*distance)+(0.39f);
+
+        //calculate high
+        if(rob_angle < 120 && rob_angle > 60)
         {
-            RotationX = -(RotationX_fix_public);
-            RotationY = -(RotationY_fix_public);
+            high_changed = high_change+high_change_2*Mathf.Abs(((rob_angle-60)/60)-1);//0-1
         }
-        if(rob_angle > 90 + seen_angle && rob_angle < 270 - seen_angle)
+        else if(rob_angle < 300 && rob_angle > 240)
         {
-            RotationX = (RotationX_fix_public);
-            RotationY = (RotationY_fix_public);
+            high_changed = high_change+high_change_2*((rob_angle-240)/60);//0-1
         }
-        if (rob_angle%180 > 90 - seen_angle && rob_angle%180 < 90 + seen_angle )
+        else if(rob_angle > 120 && rob_angle < 240)
         {
-            RotationX = Mathf.Max(Mathf.Abs(RotationX_fix_public),Mathf.Abs(RotationY_fix_public))*(Calculate_ra_sa(rob_angle,seen_angle,angle-270));//+270,180
-            RotationY = Mathf.Max(Mathf.Abs(RotationX_fix_public),Mathf.Abs(RotationY_fix_public))*(Calculate_ra_sa(rob_angle,seen_angle,angle));//+180,90
-            //RotationX = Mathf.Abs(RotationX_fix_public-RotationY_fix_public)*(Calculate_ra_sa(rob_angle,seen_angle,angle+180));
-            //RotationY = Mathf.Abs(RotationX_fix_public-RotationY_fix_public)*(Calculate_ra_sa(rob_angle,seen_angle,angle+90));
-            
+            high_changed = high_change;
         }
-        //RotationX += 2f*Mathf.Abs(((Mathf.Abs(angle%90-45)-45)/(-45))*Mathf.Abs(rob_angle-180)/180);
-        //RotationY += 2f*Mathf.Abs(((Mathf.Abs(angle%90-45)-45)/(-45))*Mathf.Abs(rob_angle-180)/180);
-        print(angle+"   "+Angle_change(angle,180));
-        //print(rob_angle180d + "," + CamRot.transform.localRotation.eulerAngles.z + "," + angle +", " +  direction);
-    }*/
-    
-    private float Angle_change(float a , float ac)
-    {
-        float angle = a - ac;
-        
-        if(angle<-180)
-            angle += 360;
-        
-        if(angle>180)
-            angle -= 360;
-        
-        return 2*Mathf.Abs(angle)/180-1;
-    }
-    private void Fix_10()
-    {
-        float angle = (Mathf.Atan2(Proj.x, Proj.z) * Mathf.Rad2Deg);
-        //RotationX_fix_public = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Angle_change(angle,0);//180,90
-        //RotationY_fix_public = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Angle_change(angle,90);//270,180
-        //RotationX = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Angle_change(angle,0);
-        //RotationY = Mathf.Abs(Mathf.Max(check_X,check_Y)) * Angle_change(angle,90);
-        float rob_angle_True = CamRot.transform.localRotation.eulerAngles.z + angle_fix;
-        float rob_angle = (rob_angle_True - angle+360)%360;
-        List<int> XYint = Calculate_ClassificationXY(Calculate_angle_area(angle));
-        RotationX =  RotationXY_set(rob_angle,XYint[0]);
-        RotationY =  RotationXY_set(rob_angle,XYint[1]);
-        //print(rob_angle - 180);
-        
-    }
-     private float Calculate_angle_area(float angle )
-    {
-        float step2_1;
-        float step2_2;
-        step2_1 = Mathf.Abs(Mathf.Floor((angle+180)/45));
-        step2_2 = (Mathf.Floor(step2_1/2)+step2_1%2 + 1);
-        step2_2 +=1;
-        if(step2_2 >= 4)
-            step2_2 -= 4;
-        if(step2_2 <0)
-            step2_2 += 4;
-        //print(/*ra + "   " +sa+"     "+ */step2_1 +"   "+step2_2 + "     "+ a);
-        return step2_2;
-    }
-    private List<int> Calculate_ClassificationXY(float angle_area)
-    {
-        int Calculate_x = 0;
-        int Calculate_y = 0;//1 = hight(+)/low(-) , 2 = right(+)/left(-)
-        if(angle_area == 0)
+        else//>300  <60
         {
-            Calculate_x = 1;
-            Calculate_y = 2;//2
+            high_changed = high_change +high_change_2;
         }
-        else if(angle_area == 1)
+
+        //angle about the field(axis is the player)
+        if(rob_angle < 120 && rob_angle > 0)
         {
-            Calculate_x = -2;//-2
-            Calculate_y = 1;
+            angle_changed = 3f*Mathf.Abs(Mathf.Abs((rob_angle-60)/60)-1)+angle_error;//0-1-0
+            angle_changed_2 = -3f*Mathf.Abs((rob_angle/120)-1);//0-1
         }
-        else if(angle_area == 2)
-        {
-            Calculate_x = -1;
-            Calculate_y = -2;//-2
+        else if
+        (
+            rob_angle < 360 && rob_angle > 240){
+            angle_changed = -3f*Mathf.Abs(Mathf.Abs((rob_angle-300)/60)-1)+angle_error;//0-1-0
+            angle_changed_2 = -3f*((rob_angle-240)/120);//0-1
         }
-        else if(angle_area == 3)
-        {
-            Calculate_x = 2;//2
-            Calculate_y = -1;
-        }
-        List<int> XYint = new List<int>();
-        XYint.Add(Calculate_x);XYint.Add(Calculate_y);
-        //print(XYint);
-        return XYint;
-    }
-    private float Calculate_high_Change(float rob_angle , float x , float y)//-180<ra<180
-    {
-        float diff = x - y;
-        return x - diff *Mathf.Abs(rob_angle - 180) / 180;
-    }
-    private float RotationXY_set(float rob_angle, int a ) 
-    {
-        if(Mathf.Abs(a) == 1)
-            return Calculate_high_Change(rob_angle , (X1_X2[0]) *  a , (X1_X2[1]) * a );
-        else if (Mathf.Abs(a) == 2)
-            return (-a)*Angle_change(rob_angle,270);
         else
-            return 0;
+        {
+            angle_changed = 0 + angle_error;
+            angle_changed_2 = 0;
+        }
+
+        //set the number(flaot) to the game object
+        Field_rotation_1.transform.position = CamTruePos.transform.position;
+        Field_rotation_1.transform.localRotation = Quaternion.Euler(Field_rotation_1.transform.localRotation.eulerAngles.x,Field_rotation_1.transform.localRotation.eulerAngles.y,angle+90f);
+        Field_rotation_2.transform.localRotation = Quaternion.Euler(angle_changed,angle_changed_2 ,Field_rotation_2.transform.localRotation.eulerAngles.z);
+        TheField.transform.position = new Vector3(transform.position.x,transform.position.y+high_changed,transform.position.z);
+        TheField.transform.localRotation = Quaternion.Euler(0,0,-(angle+90f));
+    }
+    private void Fix_1_1()//custom
+    {
+        //distance error(the back of the 360 camera)
+        high_change_2 = ((1.58f)*distance)+(0.39f);
+
+        //calculate high
+        if(rob_angle < 120 && rob_angle > 30)
+        {
+            high_changed = high_change+high_change_2*Mathf.Abs(((rob_angle-30)/90)-1);//0-1
+        }
+        else if(rob_angle < 300 && rob_angle > 240)
+        {
+            high_changed = high_change+high_change_2*((rob_angle-240)/60);//0-1
+        }
+        else if(rob_angle > 120 && rob_angle < 240)
+        {
+            high_changed = high_change;
+        }
+        else//>300  <30
+        {
+            high_changed = high_change +high_change_2;
+        }
+
+        //angle about the field(axis is the player)
+        if(rob_angle < 120 && rob_angle > 0)
+        {
+            angle_changed = 3.5f*Mathf.Abs(Mathf.Abs((rob_angle-60)/60)-1)+angle_error;//0-1-0
+            angle_changed_2 = -3.5f*Mathf.Abs((rob_angle/120)-1);//0-1
+        }
+        else if
+        (
+            rob_angle < 360 && rob_angle > 240){
+            angle_changed = -3.5f*Mathf.Abs(Mathf.Abs((rob_angle-300)/60)-1)+angle_error;//0-1-0
+            angle_changed_2 = -3.5f*((rob_angle-240)/120);//0-1
+        }
+        else
+        {
+            angle_changed = 0 + angle_error;
+            angle_changed_2 = 0;
+        }
+
+        //set the number(flaot) to the game object
+        Field_rotation_1.transform.position = CamTruePos.transform.position;
+        Field_rotation_1.transform.localRotation = Quaternion.Euler(Field_rotation_1.transform.localRotation.eulerAngles.x,Field_rotation_1.transform.localRotation.eulerAngles.y,angle+90f);
+        Field_rotation_2.transform.localRotation = Quaternion.Euler(angle_changed,angle_changed_2 ,Field_rotation_2.transform.localRotation.eulerAngles.z);
+        TheField.transform.position = new Vector3(transform.position.x,transform.position.y+high_changed,transform.position.z);
+        TheField.transform.localRotation = Quaternion.Euler(0,0,-(angle+90f));
     }
 }

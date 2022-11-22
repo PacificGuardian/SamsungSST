@@ -41,12 +41,41 @@ public class BscM : MonoBehaviour
     }
     #endregion
     internal virtual IEnumerator Rotate(GameObject A, Quaternion Goal, float Duration){
+        Quaternion temp = A.transform.localRotation;
+        float rotAmount = 0;
+        while(Quaternion.Angle(A.transform.localRotation, Goal) > 0.001f){
+            A.transform.localRotation = Quaternion.Slerp(temp, Goal, rotAmount);
+            rotAmount += Duration/100/Duration;
+            yield return new WaitForSeconds(0.01f * Duration);
+        }
+        MoveToRet();
+        yield return null;
+    }
+    internal virtual IEnumerator Rotate(GameObject A, GameObject B, float Duration){
         Quaternion temp = A.transform.rotation;
+        Quaternion Goal = Quaternion.LookRotation((B.transform.position - A.transform.position).normalized);
         float rotAmount = 0;
         while(Quaternion.Angle(A.transform.rotation, Goal) > 0.001f){
             A.transform.rotation = Quaternion.Slerp(temp, Goal, rotAmount);
-            rotAmount += Duration/100/Duration;
+            rotAmount += 0.01f;
             yield return new WaitForSeconds(0.01f * Duration);
+        }
+        MoveToRet();
+        yield return null;
+    }
+    internal virtual IEnumerator Rotate(GameObject A, GameObject B, float Duration, bool End){
+        Quaternion temp = A.transform.rotation;
+        Quaternion Goal = Quaternion.LookRotation((B.transform.position - A.transform.position).normalized);
+        Goal = Quaternion.Euler(0, Goal.eulerAngles.y, 0);
+        float rotAmount = 0;
+        while(Quaternion.Angle(A.transform.rotation, Goal) > 0.001f){
+            A.transform.rotation = Quaternion.Slerp(temp, Goal, rotAmount);
+            rotAmount += 0.01f;
+            yield return new WaitForSeconds(0.01f * Duration);
+        }
+        if(End){
+            VarManager.Singleton.possessedDemon.SetBool("Walking", false);
+            Gazer.startReady = true;
         }
         MoveToRet();
         yield return null;

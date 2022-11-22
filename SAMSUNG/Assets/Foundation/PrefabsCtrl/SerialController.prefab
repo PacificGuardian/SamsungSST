@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8705715649216148413}
   - component: {fileID: 8705715649216148410}
   m_Layer: 0
-  m_Name: Robot_Control
+  m_Name: SerialController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
