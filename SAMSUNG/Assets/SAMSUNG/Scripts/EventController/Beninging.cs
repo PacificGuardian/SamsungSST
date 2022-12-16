@@ -13,6 +13,11 @@ public class Beninging : BscM
     private int Steps = 0;
     private void Awake() {
         MarketTrigs.MarketStart += Reg;
+        //Projection9_1.FirstTick += tickStart;
+        if(GameObject.Find("Serial_Controller") != null)
+        GameObject.Find("Serial_Controller").SetActive(false);
+        if(VarManager.Singleton.StartCanvas != null)
+        VarManager.Singleton.StartCanvas.enabled = true;
     }
     private void Reg(){
         try{
@@ -23,13 +28,9 @@ public class Beninging : BscM
         }
     }
     private void Start() {
-        if(GameObject.Find("Serial_Controller") != null)
-        GameObject.Find("Serial_Controller").SetActive(false);
-        if(VarManager.Singleton.StartCanvas != null)
-        VarManager.Singleton.StartCanvas.enabled = true;
         SttcMoveTo(Labour, Targets[Steps], WalkSpeed);
         VarManager.Singleton.possessedDemon.SetBool("Walking", true);
-        GameObject.Find("Serial_Controller").SetActive(false);
+        //GameObject.Find("Serial_Controller").SetActive(false);
     }
     internal override IEnumerator SttcMove(GameObject A, Vector3 B, float Magnitude)
     {

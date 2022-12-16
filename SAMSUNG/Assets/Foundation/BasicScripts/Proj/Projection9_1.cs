@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+public delegate void Projection();
 
 public class Projection9_1 : MonoBehaviour
 {
@@ -33,6 +34,8 @@ public class Projection9_1 : MonoBehaviour
     Vector3 Cam;
     Vector3 Opp;
     Vector3 Proj;
+    public static event Projection FirstTick;
+    bool firstTick = false;
 
     private List<Vector3> posLst = new List<Vector3>();
     private List<Quaternion> oriLst = new List<Quaternion>();
@@ -123,14 +126,20 @@ public class Projection9_1 : MonoBehaviour
         rob_angle_True = CamRot.transform.localRotation.eulerAngles.z;
         rob_angle = (rob_angle_True - angle+360)%360;
         distance =Mathf.Sqrt( Mathf.Pow(Proj.x,2)+Mathf.Pow(Proj.y,2)+Mathf.Pow(Proj.z,2));
-
         //using fix
         if(use_fix_1 && !use_fix_1_1)
            Fix_1();
         if(use_fix_1_1 && !use_fix_1)
            Fix_1_1();
         if(use_fix_1_1 && use_fix_1)
-            Fix_1();   
+            Fix_1();
+            /*
+        if(!firstTick){
+            firstTick = true;
+            FirstTick.Invoke();
+            Debug.Log("?????");
+        }  
+        */
     }
     private void Fix_1()//default
     {

@@ -12,6 +12,7 @@ namespace Valve.VR
 {
     public class SteamVR_TrackedObject_bind : MonoBehaviour
     {
+        [Range(0,1)]public float step;
         public enum EIndex
         {
             None = -1,
@@ -42,9 +43,15 @@ namespace Valve.VR
         [Tooltip("If not set, relative to parent")]
         public Transform origin;
 
-        public bool isValid { get; private set; }
+        //Vector3 newpose;
+        
+        //public float mount = 0;
 
-        private void OnNewPoses(TrackedDevicePose_t[] poses)
+        int count = 0;
+        public bool pos_change = false;
+
+        public bool isValid { get; private set;}     
+        public void OnNewPoses(TrackedDevicePose_t[] poses)
         {
             if (index == EIndex.None)
                 return;
@@ -67,17 +74,18 @@ namespace Valve.VR
 
             if (origin != null)
             {
+                //print("origin update");
                 transform.position = origin.transform.TransformPoint(pose.pos);
-                transform.rotation = origin.rotation * pose.rot;
+                transform.rotation = origin.rotation * pose.rot;       
             }
-            else
+            else 
             {
-                transform.localPosition = pose.pos;
-                transform.localRotation = pose.rot;
+                pos_change = true;
+                change_pos(poses);
             }
         }
 
-        SteamVR_Events.Action newPosesAction;
+        public SteamVR_Events.Action newPosesAction;
 
         SteamVR_TrackedObject_bind()
         {
@@ -133,7 +141,7 @@ namespace Valve.VR
 
         void OnDisable()
         {
-            newPosesAction.enabled = false;
+            //newPosesAction.enabled = false;
             isValid = false;
         }
 
@@ -141,6 +149,15 @@ namespace Valve.VR
         {
             if (System.Enum.IsDefined(typeof(EIndex), index))
                 this.index = (EIndex)index;
+        }
+
+        public void change_pos(TrackedDevicePose_t[] poses){
+            print("pose_change");
+            var i = (int)index;
+            var pose = new SteamVR_Utils.RigidTransform(poses[i].mDeviceToAbsoluteTracking);
+            transform.localPosition = Vector3.Lerp(transform.localPosition,pose.pos,step);
+            transform.localRotation = Quaternion.Lerp(transform.localRotation,pose.rot,step) ;
+            pos_change = false;
         }
     }
 }

@@ -13,6 +13,8 @@ public class Idle : BscM{
     Vector3 pos;
     public static bool slaveReady = false;
     public bool intIdling = false;
+    [SerializeField]
+    float walkSpeed;
     private void Start() {
         slave = VarManager.Singleton.possessedDemon.gameObject;
         SlaveBase.idleEnable += idleStart;
@@ -32,11 +34,11 @@ public class Idle : BscM{
         while(Idling){
             distance = target.transform.position - slave.transform.position;
             tempRot = new(0, 0, 0);
-            if(distance.sqrMagnitude > 0.01f)
+            if(distance.sqrMagnitude > 0.5f)
             {
             slave.GetComponent<Animator>().SetBool("Walking", true);
             pos = new Vector3(target.transform.position.x,slave.transform.position.y,target.transform.position.z);
-            slave.transform.position = Vector3.MoveTowards(slave.transform.position, target.transform.position, 0.05f);
+            slave.transform.position = Vector3.MoveTowards(slave.transform.position, target.transform.position, 0.05f * walkSpeed);
             tempRot.y = Quaternion.LookRotation(distance.normalized).eulerAngles.y;
             slave.transform.eulerAngles = tempRot;
             }

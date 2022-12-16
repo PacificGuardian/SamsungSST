@@ -6,12 +6,12 @@ using UnityEngine;
 public class SlaveController : SlaveBase {
     [SerializeField]
     GameObject Robot;    
+    //[SerializeField]
+    //GameObject PockyCase;
     [SerializeField]
-    GameObject PockyCase;
-    [SerializeField]
-    GameObject ColaCase;
-    Collider pockyCase;
-    Collider colaCase;
+    //GameObject ColaCase;
+    //Collider pockyCase;
+    //Collider colaCase;
     public static bool responcePending = false;
     private void Awake() {
         MarketTrigs.MarketStart += Welcome;
@@ -41,6 +41,7 @@ public class SlaveController : SlaveBase {
         base.Start();
         VarManager.animCall += animCall;
         MarketTrigs.MarketExit += B;
+        /*
         try{
         if(!PockyCase.GetComponent<Collider>().isTrigger || !ColaCase.GetComponent<Collider>().isTrigger)
         Application.Quit();
@@ -52,6 +53,7 @@ public class SlaveController : SlaveBase {
         } catch(NullReferenceException){
             Debug.Log("Gameobject inserted does not have a Collider/ Collider is not a trigger");
         }
+        */
     }
     private void TriggerHandler(string Type){
         if(Type == "Cola")
